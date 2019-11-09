@@ -6,7 +6,7 @@
               @click="switchToTab(startMenuId)"
         >LyricsXML</Tab>
       </template>
-      <Tab v-for="(tab, i) in tabs" :key="i" :active="tab.isActive"
+      <Tab v-for="(tab, i) in tabs" :key="i" :active="tab.isActive" :sortable="true"
             @click="switchToTab(i)" @close="confirmCloseTab(i, tab.isDocument)"
       >
         {{ tab.title }}

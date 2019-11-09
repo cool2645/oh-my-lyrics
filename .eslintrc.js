@@ -24,7 +24,8 @@ module.exports = {
     ],
     'operator-linebreak': [
       'error', 'before'
-    ]
+    ],
+    'no-unused-expressions': ['warn'] // https://github.com/typescript-eslint/typescript-eslint/issues/1138
   },
   parserOptions: {
     parser: '@typescript-eslint/parser'

@@ -1,31 +1,52 @@
 <template>
-  <div :class="rootClassName" @mousedown="onClicked">
-    <span>
-      <slot />
-    </span>
-    <div v-if="!permanent" class="close-button">
-      <VueIcon icon="clear" @mousedown="closeBtnClicked" @click="close"/>
+  <div class="tab-holder" @mousedown="onClicked">
+    <div :class="rootClassName" :style="transformStyle">
+      <span>
+        <slot />
+      </span>
+      <div v-if="!permanent" class="close-button">
+        <VueIcon icon="clear" @mousedown="closeBtnClicked" @click="close"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { fromEvent, Subscription } from 'rxjs'
+import { concatMap, takeUntil } from 'rxjs/operators'
 
 export default Vue.extend({
+  props: {
+    primary: Boolean,
+    permanent: Boolean,
+    active: Boolean,
+    sortable: Boolean
+  },
+  data (): {
+    subscriptions: Subscription[],
+    mouseDownOffset: number,
+    translationX: number
+    } {
+    return {
+      subscriptions: [],
+      mouseDownOffset: 0,
+      translationX: 0
+    }
+  },
   computed: {
     rootClassName (): string {
       const classNames = ['tab']
       if (this.primary) classNames.push('primary')
       if (this.active) classNames.push('active')
       if (this.permanent) classNames.push('permanent')
+      if (this.translationX === 0) classNames.push('transition')
       return classNames.join(' ')
+    },
+    transformStyle (): string {
+      if (!this.sortable) return ''
+      return `transform: translateX(${this.translationX}px)`
     }
-  },
-  props: {
-    primary: Boolean,
-    permanent: Boolean,
-    active: Boolean
   },
   watch: {
     active (newValue) {
@@ -38,6 +59,35 @@ export default Vue.extend({
     if (this.active) {
       this.scrollInNeed()
     }
+    this.subscriptions.push(
+      fromEvent<MouseEvent>(this.$el, 'mousedown')
+        .subscribe((e: MouseEvent) => {
+          const el = this.$el as HTMLElement
+          this.mouseDownOffset = e.clientX - el.offsetLeft
+        })
+    )
+    this.subscriptions.push(
+      fromEvent<MouseEvent>(this.$el, 'mousedown').pipe(
+        concatMap(() => fromEvent<MouseEvent>(document, 'mousemove').pipe(
+          takeUntil(fromEvent<MouseEvent>(document, 'mouseup'))
+        ))
+      ).subscribe((e: MouseEvent) => {
+        const el = this.$el as HTMLElement
+        this.translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
+      })
+    )
+    this.subscriptions.push(
+      fromEvent<MouseEvent>(document, 'mouseup')
+        .subscribe(() => {
+          this.translationX = 0
+          this.mouseDownOffset = 0
+        })
+    )
+  },
+  beforeDestroy () {
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe()
+    })
   },
   methods: {
     scrollInNeed () {
@@ -74,15 +124,22 @@ export default Vue.extend({
 <style lang="stylus" scoped>
 @import "~@vue/ui/src/style/imports"
 
+.tab-holder
+  margin 0 1px
+
+.narrow .tab, .narrow .tab.permanent
+  padding 20px 10px
+
 .tab
   position relative
-  margin 0 1px
   padding 20px 50px 20px 20px
   cursor default
   background-color lookup('$vue-ui-gray-300')
   color #000
   white-space nowrap
   user-select none
+  &.transition
+    transition transform .2s ease-out
   &:hover
     background-color lookup('$vue-ui-gray-100')
   span
@@ -119,6 +176,8 @@ export default Vue.extend({
     border-radius 50%
     padding 5px
     &:hover
+      background-color lookup('$vue-ui-gray-200')
+    &:hover:active
       background-color lookup('$vue-ui-gray-300')
     svg
       width 20px
@@ -127,6 +186,7 @@ export default Vue.extend({
 .tab.active, .tab.primary.active
   background-color #fff
   color lookup('$vue-ui-primary-500')
+  z-index 2
   &:hover
     background-color #fff
 

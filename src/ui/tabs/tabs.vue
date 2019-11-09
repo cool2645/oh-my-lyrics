@@ -28,7 +28,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { fromEvent, Subject, Subscription, timer } from 'rxjs'
-import { map, switchMap, takeUntil } from 'rxjs/operators'
+import { concatMap, map, takeUntil } from 'rxjs/operators'
 
 import Tab from './tab.vue'
 
@@ -41,11 +41,13 @@ export default Vue.extend({
   },
   data (): {
     overflowProbablyChange: Subject<null>,
+    mutationObserver: MutationObserver | null
     subscriptions: Subscription[],
     scrollable: boolean
     } {
     return {
       overflowProbablyChange: new Subject<null>(),
+      mutationObserver: null,
       subscriptions: [],
       scrollable: false
     }
@@ -61,31 +63,40 @@ export default Vue.extend({
   mounted () {
     this.updateScrollable()
     this.subscriptions.push(this.overflowProbablyChange.asObservable().subscribe(this.updateScrollable))
+    this.mutationObserver = new MutationObserver(() => {
+      this.overflowProbablyChange.next(null)
+    })
+    this.mutationObserver.observe(this.$refs.tabsWrapper as HTMLElement, { childList: true })
     const clickToScroll = (element: HTMLElement, opposite: boolean) => {
       this.subscriptions.push(
-        fromEvent(element, 'mousedown')
-          .pipe(
-            switchMap(
-              () => timer(0, 200)
-                .pipe(
-                  map((cnt) => 20 + Math.pow(2, cnt)),
-                  takeUntil(fromEvent(element, 'mouseup'))
-                )
-            )
-          )
-          .subscribe(offset => {
-            if (opposite) offset = -offset
-            ;(this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
-          })
+        fromEvent(element, 'mousedown').pipe(
+          concatMap(() => timer(0, 200).pipe(
+            takeUntil(fromEvent(element, 'mouseup')),
+            map((cnt) => 20 + Math.pow(2, cnt))
+          ))
+        ).subscribe(offset => {
+          if (opposite) offset = -offset
+          ;(this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
+        })
       )
     }
     clickToScroll(this.$refs.scrollLeft as HTMLElement, true)
     clickToScroll(this.$refs.scrollRight as HTMLElement, false)
+    this.subscriptions.push(
+      fromEvent<WheelEvent>(this.$refs.tabsWrapper as HTMLElement, 'wheel').pipe(
+        map((e: WheelEvent) => {
+          return 10 * e.deltaY
+        })
+      ).subscribe(offset => {
+        (this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
+      })
+    )
   },
   beforeDestroy () {
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe()
     })
+    this.mutationObserver?.disconnect()
   },
   methods: {
     handleResize () {
@@ -114,31 +125,35 @@ export default Vue.extend({
 
 .tabs-wrapper.default
   margin 0 1px
-  .tab:first-child
+  .tab-holder:first-child
     margin-left 0
-  .tab:nth-last-child(2)
+  .tab-holder:nth-last-child(2)
     margin-right 0
+
 .tabs-wrapper
   display flex
   justify-content flex-start
   align-items flex-end
-  overflow-y auto
-  overflow-y -moz-scrollbars-none
+  overflow-x auto
+  overflow-x -moz-scrollbars-none
   -ms-overflow-style none
   scrollbar-width none
+
   &::-webkit-scrollbar
-    height 0!important
-.tabs-wrapper .narrow
-  padding 20px 10px
+    height 0 !important
+
 .tabs-wrapper
   &.pinned, &.scroll-up, &.scroll-down, &.new-tab
     flex none
+
 .tabs-wrapper
   &.scroll-up, &.scroll-down, &.new-tab
     display none
+
 .tabs-wrapper.scrollable
   &.scroll-up, &.scroll-down
     display flex
+
 .tabs-wrapper.new-tab-able
   &.new-tab
     display flex
