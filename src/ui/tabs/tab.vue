@@ -1,6 +1,6 @@
 <template>
-  <div class="tab-holder" @mousedown="onClicked">
-    <div :class="rootClassName" :style="transformStyle">
+  <div :class="tabHolderClassName" tab-holder @mousedown="onClicked">
+    <div :class="tabClassName" :style="transformStyle">
         <span>
           <slot />
         </span>
@@ -13,8 +13,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { fromEvent, Subscription } from 'rxjs'
-import { concatMap, takeUntil } from 'rxjs/operators'
+import { fromEvent, Subscription, timer } from 'rxjs'
+import { concatMap, mapTo, switchMap, takeUntil } from 'rxjs/operators'
 
 export default Vue.extend({
   props: {
@@ -25,60 +25,87 @@ export default Vue.extend({
   },
   data (): {
     subscriptions: Subscription[],
+    mouseDown: boolean,
     mouseDownOffset: number,
+    mouseDownScrollOffset: number,
     translationX: number
     } {
     return {
       subscriptions: [],
+      mouseDown: false,
       mouseDownOffset: 0,
+      mouseDownScrollOffset: 0,
       translationX: 0
     }
   },
   computed: {
-    rootClassName (): string {
+    tabHolderClassName (): string {
+      const classNames = ['tab-holder']
+      if (this.active) classNames.push('active')
+      if (this.translationX !== 0) classNames.push('no-transit')
+      return classNames.join(' ')
+    },
+    tabClassName (): string {
       const classNames = ['tab']
       if (this.primary) classNames.push('primary')
-      if (this.active) classNames.push('active')
       if (this.permanent) classNames.push('permanent')
       if (this.translationX === 0) classNames.push('transition')
       return classNames.join(' ')
     },
     transformStyle (): string {
-      if (!this.sortable) return ''
+      if (!this.sortable || this.translationX === 0) return ''
       return `transform: translateX(${this.translationX}px)`
+    },
+    tabsWrapper (): HTMLElement {
+      let tabsWrapper: HTMLElement = this.$el as HTMLElement
+      while (tabsWrapper.parentElement) {
+        tabsWrapper = tabsWrapper.parentElement
+        if (tabsWrapper.hasAttribute('document-tabs-wrapper')) break
+      }
+      return tabsWrapper
     }
   },
   watch: {
     active (newValue) {
-      if (newValue) {
-        this.scrollInNeed()
-      }
+      if (newValue) this.scrollInNeed()
     }
   },
   mounted () {
-    if (this.active) {
-      this.scrollInNeed()
-    }
+    if (this.active) this.scrollInNeed()
     this.subscriptions.push(
       fromEvent<MouseEvent>(this.$el, 'mousedown')
         .subscribe((e: MouseEvent) => {
           const el = this.$el as HTMLElement
           this.mouseDownOffset = e.clientX - el.offsetLeft
+          if (this.tabsWrapper) {
+            this.mouseDownScrollOffset = this.tabsWrapper.scrollLeft
+          }
+          this.mouseDown = true
         })
     )
     this.subscriptions.push(
       fromEvent<MouseEvent>(this.$el, 'mousedown').pipe(
         concatMap(() => fromEvent<MouseEvent>(document, 'mousemove').pipe(
           takeUntil(fromEvent<MouseEvent>(document, 'mouseup'))
+        )),
+        switchMap((e) => timer(0, 12).pipe(
+          takeUntil(fromEvent<MouseEvent>(document, 'mouseup')),
+          mapTo(e)
         ))
       ).subscribe((e: MouseEvent) => {
         const el = this.$el as HTMLElement
-        this.translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
+        let translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
+        if (this.tabsWrapper) {
+          translationX += this.tabsWrapper.scrollLeft - this.mouseDownScrollOffset
+        }
+        this.translationX = translationX
         const sibling = this.translationX < 0
           ? el.previousElementSibling : el.nextElementSibling
-        if (sibling && sibling.className === 'tab-holder') {
+        if (sibling && sibling.hasAttribute('tab-holder')) {
           if (Math.abs(this.translationX) > 0.55 * sibling.clientWidth) {
             this.$emit('reorder', this.translationX < 0 ? -1 : 1)
+            if (this.translationX < 0) this.translationX += sibling.clientWidth
+            else this.translationX -= sibling.clientWidth
           }
         }
       })
@@ -86,25 +113,21 @@ export default Vue.extend({
     this.subscriptions.push(
       fromEvent<MouseEvent>(document, 'mouseup')
         .subscribe(() => {
+          if (this.mouseDown) this.scrollInNeed()
+          this.mouseDown = false
           this.translationX = 0
           this.mouseDownOffset = 0
         })
     )
   },
   beforeDestroy () {
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe()
-    })
+    this.subscriptions.forEach(subscription => subscription.unsubscribe())
   },
   methods: {
     scrollInNeed () {
       setTimeout(() => {
         const el = this.$el as HTMLElement
-        let tabsWrapper: HTMLElement = el
-        while (tabsWrapper.parentElement) {
-          tabsWrapper = tabsWrapper.parentElement
-          if (tabsWrapper.className === 'tabs-wrapper default') break
-        }
+        const tabsWrapper = this.tabsWrapper
         if (tabsWrapper && el
           && tabsWrapper.clientWidth < tabsWrapper.scrollWidth
         ) {
@@ -197,10 +220,15 @@ export default Vue.extend({
       width 20px
       height 20px
 
-.tab.active, .tab.primary.active
+.no-transit
+  transition none!important
+
+.active
+  z-index 2
+
+.active .tab, .active .tab.primary
   background-color #fff
   color lookup('$vue-ui-primary-500')
-  z-index 2
   &:hover
     background-color #fff
 

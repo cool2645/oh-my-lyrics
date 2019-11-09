@@ -8,7 +8,7 @@
       </template>
       <transition-group name="document-tabs" tag="div" class="transition-group">
         <Tab v-for="(tab, i) in tabs" :key="tab._id" :active="i === currentTabId" :sortable="true"
-             @click="switchToTab(i)" @close="confirmCloseTab(i)"
+             @click="switchToTab(i)" @close="confirmCloseTab(i)" @reorder="reorderTab"
         >
           {{ tab.document.title }}
         </Tab>
@@ -68,7 +68,8 @@ export default Vue.extend({
   methods: {
     ...mapMutations({
       switchToTab: 'ACTIVATE_TAB',
-      closeTab: 'CLOSE_TAB'
+      closeTab: 'CLOSE_TAB',
+      reorderTab: 'REORDER_TAB'
     }),
     ...mapActions([
       'newLyrics',

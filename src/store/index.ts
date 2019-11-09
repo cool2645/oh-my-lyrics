@@ -57,7 +57,19 @@ export default new Vuex.Store<State>({
       state.currentTabId = id
     },
     REORDER_TAB (state, direction) {
-
+      if (direction > 0 && state.currentTabId !== state.tabs.length - 1) {
+        const temp = state.tabs[state.currentTabId]
+        Vue.set(state.tabs, state.currentTabId, state.tabs[state.currentTabId + 1])
+        Vue.set(state.tabs, state.currentTabId + 1, temp)
+        state.currentTabId++
+        return
+      }
+      if (direction < 0 && state.currentTabId !== 0) {
+        const temp = state.tabs[state.currentTabId]
+        Vue.set(state.tabs, state.currentTabId, state.tabs[state.currentTabId - 1])
+        Vue.set(state.tabs, state.currentTabId - 1, temp)
+        state.currentTabId--
+      }
     }
   },
   actions: {
