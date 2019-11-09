@@ -13,6 +13,7 @@ export type EditorMode =
   | 'TRANSLATE'
 
 export interface Tab {
+  _id: string
   editorMode: EditorMode
   rubyId: number
   translateId: number
@@ -54,6 +55,9 @@ export default new Vuex.Store<State>({
     },
     ACTIVATE_TAB (state, id) {
       state.currentTabId = id
+    },
+    REORDER_TAB (state, direction) {
+
     }
   },
   actions: {
@@ -74,6 +78,7 @@ export default new Vuex.Store<State>({
     },
     openLyrics ({ commit, state }, lyrics: Lyrics) {
       const tab: Tab = {
+        _id: (+new Date()) + '' + Math.random(),
         editorMode: 'HEAD',
         rubyId: 0,
         translateId: 0,

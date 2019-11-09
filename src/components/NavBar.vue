@@ -6,11 +6,13 @@
               @click="switchToTab(startMenuId)"
         >LyricsXML</Tab>
       </template>
-      <Tab v-for="(tab, i) in tabs" :key="i" :active="tab.isActive" :sortable="true"
-            @click="switchToTab(i)" @close="confirmCloseTab(i, tab.isDocument)"
-      >
-        {{ tab.title }}
-      </Tab>
+      <transition-group name="document-tabs" tag="div" class="transition-group">
+        <Tab v-for="(tab, i) in tabs" :key="tab._id" :active="i === currentTabId" :sortable="true"
+             @click="switchToTab(i)" @close="confirmCloseTab(i)"
+        >
+          {{ tab.document.title }}
+        </Tab>
+      </transition-group>
     </Tabs>
     <VueModal
       v-if="confirmClosing"
@@ -38,12 +40,6 @@ import Tabs from '@/ui/tabs/tabs.vue'
 import Tab from '@/ui/tabs/tab.vue'
 import { START_MENU, Tab as ITab } from '@/store'
 
-interface INavTab {
-  title: string,
-  isActive: boolean,
-  isDocument: boolean
-}
-
 export default Vue.extend({
   components: {
     Tabs,
@@ -62,14 +58,11 @@ export default Vue.extend({
     showStartMenu (): boolean {
       return this.$store.state.currentTabId === this.startMenuId
     },
-    tabs (): INavTab[] {
-      return this.$store.state.tabs.map(
-        (tab: ITab, i: number) => ({
-          title: tab.document.title,
-          isActive: i === this.$store.state.currentTabId,
-          isDocument: true
-        })
-      )
+    currentTabId (): number {
+      return this.$store.state.currentTabId
+    },
+    tabs (): ITab[] {
+      return this.$store.state.tabs
     }
   },
   methods: {
@@ -81,11 +74,9 @@ export default Vue.extend({
       'newLyrics',
       'closeLyrics'
     ]),
-    confirmCloseTab (id: number, isDocument: boolean) {
-      if (isDocument) {
-        this.closingTabId = id
-        this.confirmClosing = true
-      } else (this as any).closeTab(id)
+    confirmCloseTab (id: number) {
+      this.closingTabId = id
+      this.confirmClosing = true
     },
     closeTabAndConfirm () {
       (this as any).closeTab(this.closingTabId)
@@ -95,6 +86,20 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="stylus" scoped>
+.transition-group
+  display flex
+  justify-content flex-start
+  align-items flex-end
+  overflow visible
 
+.document-tabs-move
+  transition transform .2s
+
+.document-tabs-enter-active, .document-tabs-leave-active
+  transition transform .2s
+  transform-origin left
+
+.document-tabs-enter, .document-tabs-leave-to
+  transform scaleX(0)
 </style>

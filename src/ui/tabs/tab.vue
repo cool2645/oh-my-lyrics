@@ -1,9 +1,9 @@
 <template>
   <div class="tab-holder" @mousedown="onClicked">
     <div :class="rootClassName" :style="transformStyle">
-      <span>
-        <slot />
-      </span>
+        <span>
+          <slot />
+        </span>
       <div v-if="!permanent" class="close-button">
         <VueIcon icon="clear" @mousedown="closeBtnClicked" @click="close"/>
       </div>
@@ -74,6 +74,13 @@ export default Vue.extend({
       ).subscribe((e: MouseEvent) => {
         const el = this.$el as HTMLElement
         this.translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
+        const sibling = this.translationX < 0
+          ? el.previousElementSibling : el.nextElementSibling
+        if (sibling && sibling.className === 'tab-holder') {
+          if (Math.abs(this.translationX) > 0.55 * sibling.clientWidth) {
+            this.$emit('reorder', this.translationX < 0 ? -1 : 1)
+          }
+        }
       })
     )
     this.subscriptions.push(
@@ -93,7 +100,11 @@ export default Vue.extend({
     scrollInNeed () {
       setTimeout(() => {
         const el = this.$el as HTMLElement
-        const tabsWrapper = el?.parentElement
+        let tabsWrapper: HTMLElement = el
+        while (tabsWrapper.parentElement) {
+          tabsWrapper = tabsWrapper.parentElement
+          if (tabsWrapper.className === 'tabs-wrapper default') break
+        }
         if (tabsWrapper && el
           && tabsWrapper.clientWidth < tabsWrapper.scrollWidth
         ) {
@@ -124,14 +135,17 @@ export default Vue.extend({
 <style lang="stylus" scoped>
 @import "~@vue/ui/src/style/imports"
 
-.tab-holder
-  margin 0 1px
-
 .narrow .tab, .narrow .tab.permanent
   padding 20px 10px
 
+.tab-holder:first-child .tab
+  margin-left 0
+.tab-holder:last-child .tab
+  margin-right 0
+
 .tab
   position relative
+  margin 0 1px
   padding 20px 50px 20px 20px
   cursor default
   background-color lookup('$vue-ui-gray-300')

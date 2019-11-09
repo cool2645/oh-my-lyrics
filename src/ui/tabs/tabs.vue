@@ -9,8 +9,10 @@
       </Tab>
     </div>
     <div class="tabs-wrapper default" ref="tabsWrapper">
-      <slot />
-      <resize-observer @notify="handleResize" />
+      <div>
+        <slot />
+      </div>
+      <resize-observer key="resize-observer" @notify="handleResize" />
     </div>
     <div :class="`tabs-wrapper scroll-down ${scrollClass}`" ref="scrollRight">
       <Tab permanent class="narrow">
@@ -65,8 +67,11 @@ export default Vue.extend({
     this.subscriptions.push(this.overflowProbablyChange.asObservable().subscribe(this.updateScrollable))
     this.mutationObserver = new MutationObserver(() => {
       this.overflowProbablyChange.next(null)
+      setTimeout(() => {
+        this.overflowProbablyChange.next(null)
+      }, 200) // Transition
     })
-    this.mutationObserver.observe(this.$refs.tabsWrapper as HTMLElement, { childList: true })
+    this.mutationObserver.observe(this.$refs.tabsWrapper as HTMLElement, { childList: true, subtree: true })
     const clickToScroll = (element: HTMLElement, opposite: boolean) => {
       this.subscriptions.push(
         fromEvent(element, 'mousedown').pipe(
@@ -125,12 +130,9 @@ export default Vue.extend({
 
 .tabs-wrapper.default
   margin 0 1px
-  .tab-holder:first-child
-    margin-left 0
-  .tab-holder:nth-last-child(2)
-    margin-right 0
 
 .tabs-wrapper
+  margin 0 1px
   display flex
   justify-content flex-start
   align-items flex-end
@@ -141,6 +143,12 @@ export default Vue.extend({
 
   &::-webkit-scrollbar
     height 0 !important
+
+.tabs-wrapper > div
+  display flex
+  justify-content flex-start
+  align-items flex-end
+  overflow visible
 
 .tabs-wrapper
   &.pinned, &.scroll-up, &.scroll-down, &.new-tab
