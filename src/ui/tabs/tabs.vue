@@ -135,7 +135,7 @@ export default Vue.extend({
     this.subscriptions.push(
       fromEvent<WheelEvent>(this.$refs.tabsWrapper as HTMLElement, 'wheel').pipe(
         map((e: WheelEvent) => {
-          return 10 * e.deltaY
+          return 30 * (e.deltaY > 0 ? 1 : -1)
         })
       ).subscribe(offset => {
         (this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
