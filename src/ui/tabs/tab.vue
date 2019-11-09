@@ -1,10 +1,10 @@
 <template>
-  <div :class="rootClassName">
+  <div :class="rootClassName" @click="onClicked">
     <span>
       <slot />
     </span>
-    <div v-if="!permanent" class="close-button" @click="close">
-      <VueIcon icon="clear"/>
+    <div v-if="!permanent" class="close-button">
+      <VueIcon icon="clear" @click="close"/>
     </div>
   </div>
 </template>
@@ -14,7 +14,7 @@ import Vue from 'vue'
 
 export default Vue.extend({
   computed: {
-    rootClassName () {
+    rootClassName (): string {
       const classNames = ['tab']
       if (this.primary) classNames.push('primary')
       if (this.active) classNames.push('active')
@@ -30,28 +30,40 @@ export default Vue.extend({
   watch: {
     active (newValue) {
       if (newValue) {
-        const tabsWrapper = this.$el?.parentElement
-        if (tabsWrapper && tabsWrapper.clientWidth < tabsWrapper.scrollWidth) {
-          this.scrollToShow()
-        }
+        this.scrollInNeed()
       }
     }
   },
   mounted () {
     if (this.active) {
-      const tabsWrapper = this.$el?.parentElement
-      if (tabsWrapper && tabsWrapper.clientWidth < tabsWrapper.scrollWidth) {
-        this.scrollToShow()
-      }
+      this.scrollInNeed()
     }
   },
   methods: {
-    scrollToShow () {
-      const tabsWrapper = this.$el?.parentElement
-      console.log('need scroll')
+    scrollInNeed () {
+      setTimeout(() => {
+        const el = this.$el as HTMLElement
+        const tabsWrapper = el?.parentElement
+        if (tabsWrapper && el
+          && tabsWrapper.clientWidth < tabsWrapper.scrollWidth
+        ) {
+          if (tabsWrapper.scrollLeft > el.offsetLeft - tabsWrapper.offsetLeft) {
+            tabsWrapper.scrollTo(el.offsetLeft - tabsWrapper.offsetLeft, 0)
+            return
+          }
+          if (tabsWrapper.scrollLeft + tabsWrapper.clientWidth
+            < el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth) {
+            tabsWrapper.scrollTo(el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth - tabsWrapper.clientWidth, 0)
+          }
+        }
+      }, 0)
     },
-    close () {
-      this.$emit('close')
+    close (e: MouseEvent) {
+      this.$emit('close', e)
+      e.stopPropagation()
+    },
+    onClicked (e: MouseEvent) {
+      this.$emit('click', e)
     }
   }
 })
@@ -68,6 +80,7 @@ export default Vue.extend({
   background-color lookup('$vue-ui-gray-300')
   color #000
   white-space nowrap
+  user-select none
   &:hover
     background-color lookup('$vue-ui-gray-100')
   span

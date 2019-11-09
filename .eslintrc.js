@@ -22,7 +22,9 @@ module.exports = {
         'newlines-between': 'always'
       }
     ],
-    'no-unused-expressions': 'warn' // https://github.com/typescript-eslint/typescript-eslint/issues/1138
+    'operator-linebreak': [
+      'error', 'before'
+    ]
   },
   parserOptions: {
     parser: '@typescript-eslint/parser'

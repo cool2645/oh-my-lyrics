@@ -3,17 +3,18 @@
     <div class="tabs-wrapper pinned">
       <slot name="pinned" />
     </div>
-    <div :class="`tabs-wrapper scroll-up ${scrollClass}`">
+    <div :class="`tabs-wrapper scroll-up ${scrollClass}`" ref="scrollLeft">
       <Tab permanent class="narrow">
-        <VueIcon icon="keyboard_arrow_left"/>
+        <VueIcon icon="keyboard_arrow_left" />
       </Tab>
     </div>
     <div class="tabs-wrapper default" ref="tabsWrapper">
       <slot />
+      <resize-observer @notify="handleResize" />
     </div>
-    <div :class="`tabs-wrapper scroll-down ${scrollClass}`">
+    <div :class="`tabs-wrapper scroll-down ${scrollClass}`" ref="scrollRight">
       <Tab permanent class="narrow">
-        <VueIcon icon="keyboard_arrow_right"/>
+        <VueIcon icon="keyboard_arrow_right" />
       </Tab>
     </div>
   </div>
@@ -21,8 +22,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import ResizeObserver from 'resize-observer-polyfill'
-import { Subject, Subscription } from 'rxjs'
+import { fromEvent, Subject, Subscription, timer } from 'rxjs'
+import { map, switchMap, takeUntil } from 'rxjs/operators'
 
 import Tab from './tab.vue'
 
@@ -32,13 +33,11 @@ export default Vue.extend({
   },
   data (): {
     overflowProbablyChange: Subject<null>,
-    resizeObserver: ResizeObserver | null,
     subscriptions: Subscription[],
     scrollable: boolean
     } {
     return {
       overflowProbablyChange: new Subject<null>(),
-      resizeObserver: null,
       subscriptions: [],
       scrollable: false
     }
@@ -48,27 +47,41 @@ export default Vue.extend({
       return this.scrollable ? 'scrollable' : ''
     }
   },
-  created () {
-    this.resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        this.overflowProbablyChange.next(null)
-      }
-    })
-  },
   mounted () {
     this.updateScrollable()
-    this.resizeObserver?.observe(this.$refs.tabsWrapper as Element)
     this.subscriptions.push(this.overflowProbablyChange.asObservable().subscribe(this.updateScrollable))
+    const clickToScroll = (element: HTMLElement, opposite: boolean) => {
+      this.subscriptions.push(
+        fromEvent(element, 'mousedown')
+          .pipe(
+            switchMap(
+              () => timer(0, 200)
+                .pipe(
+                  map((cnt) => 20 + Math.pow(2, cnt)),
+                  takeUntil(fromEvent(element, 'mouseup'))
+                )
+            )
+          )
+          .subscribe(offset => {
+            if (opposite) offset = -offset
+            ;(this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
+          })
+      )
+    }
+    clickToScroll(this.$refs.scrollLeft as HTMLElement, true)
+    clickToScroll(this.$refs.scrollRight as HTMLElement, false)
   },
   beforeDestroy () {
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe()
     })
-    this.resizeObserver?.disconnect()
   },
   methods: {
+    handleResize () {
+      this.overflowProbablyChange.next(null)
+    },
     updateScrollable () {
-      const tabsWrapper = this.$refs.tabsWrapper as Element
+      const tabsWrapper = this.$refs.tabsWrapper as HTMLElement
       this.scrollable = tabsWrapper.clientWidth < tabsWrapper.scrollWidth
     }
   }

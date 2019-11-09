@@ -34,6 +34,7 @@ ul
   position relative
   vertical-align middle
   line-height 1.5em
+  user-select none
   .vue-ui-icon
     width 1.5em
     height 1.5em

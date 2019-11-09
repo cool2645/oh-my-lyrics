@@ -3,12 +3,12 @@
     <template v-slot:pinned>
       <Tab primary permanent>LyricsXML</Tab>
     </template>
-    <Tab active>Document 1</Tab>
+    <Tab>Document 1</Tab>
     <Tab>Document 2</Tab>
     <Tab>Document 3</Tab>
-    <Tab>Document 4</Tab>
+    <Tab @click="() => alert('activate 4')" @close="() => alert('close 4')">Document 4</Tab>
     <Tab>Document 5</Tab>
-    <Tab>Document 6</Tab>
+    <Tab active>Document 6</Tab>
     <Tab>Document 7</Tab>
   </Tabs>
 </template>
@@ -23,6 +23,11 @@ export default Vue.extend({
   components: {
     Tabs,
     Tab
+  },
+  methods: {
+    alert (e: string) {
+      alert(e)
+    }
   }
 })
 </script>
