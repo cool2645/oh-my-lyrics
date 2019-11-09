@@ -4,8 +4,10 @@
   </li>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   computed: {
     rootClassName () {
       return this.selected ? 'selected' : ''
@@ -14,7 +16,7 @@ export default {
   props: {
     selected: Boolean
   }
-}
+})
 </script>
 
 <style lang="stylus" scoped>

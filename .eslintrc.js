@@ -10,7 +10,19 @@ module.exports = {
   ],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'import/order': [
+      'error',
+      {
+        'groups': [
+          'builtin',
+          'external',
+          'internal'
+        ],
+        'newlines-between': 'always'
+      }
+    ],
+    'no-unused-expressions': 'warn' // https://github.com/typescript-eslint/typescript-eslint/issues/1138
   },
   parserOptions: {
     parser: '@typescript-eslint/parser'
@@ -25,5 +37,6 @@ module.exports = {
         jest: true
       }
     }
-  ]
+  ],
+  'plugins': ['import']
 }

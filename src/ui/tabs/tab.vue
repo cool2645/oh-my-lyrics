@@ -3,14 +3,16 @@
     <span>
       <slot />
     </span>
-    <div v-if="!permanent" class="close-button">
+    <div v-if="!permanent" class="close-button" @click="close">
       <VueIcon icon="clear"/>
     </div>
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   computed: {
     rootClassName () {
       const classNames = ['tab']
@@ -24,8 +26,35 @@ export default {
     primary: Boolean,
     permanent: Boolean,
     active: Boolean
+  },
+  watch: {
+    active (newValue) {
+      if (newValue) {
+        const tabsWrapper = this.$el?.parentElement
+        if (tabsWrapper && tabsWrapper.clientWidth < tabsWrapper.scrollWidth) {
+          this.scrollToShow()
+        }
+      }
+    }
+  },
+  mounted () {
+    if (this.active) {
+      const tabsWrapper = this.$el?.parentElement
+      if (tabsWrapper && tabsWrapper.clientWidth < tabsWrapper.scrollWidth) {
+        this.scrollToShow()
+      }
+    }
+  },
+  methods: {
+    scrollToShow () {
+      const tabsWrapper = this.$el?.parentElement
+      console.log('need scroll')
+    },
+    close () {
+      this.$emit('close')
+    }
   }
-}
+})
 </script>
 
 <style lang="stylus" scoped>

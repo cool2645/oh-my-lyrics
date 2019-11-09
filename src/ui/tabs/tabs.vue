@@ -3,15 +3,15 @@
     <div class="tabs-wrapper pinned">
       <slot name="pinned" />
     </div>
-    <div class="tabs-wrapper scroll-up">
+    <div :class="`tabs-wrapper scroll-up ${scrollClass}`">
       <Tab permanent class="narrow">
         <VueIcon icon="keyboard_arrow_left"/>
       </Tab>
     </div>
-    <div class="tabs-wrapper default">
+    <div class="tabs-wrapper default" ref="tabsWrapper">
       <slot />
     </div>
-    <div class="tabs-wrapper scroll-down">
+    <div :class="`tabs-wrapper scroll-down ${scrollClass}`">
       <Tab permanent class="narrow">
         <VueIcon icon="keyboard_arrow_right"/>
       </Tab>
@@ -19,13 +19,60 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
+import ResizeObserver from 'resize-observer-polyfill'
+import { Subject, Subscription } from 'rxjs'
+
 import Tab from './tab.vue'
-export default {
+
+export default Vue.extend({
   components: {
     Tab
+  },
+  data (): {
+    overflowProbablyChange: Subject<null>,
+    resizeObserver: ResizeObserver | null,
+    subscriptions: Subscription[],
+    scrollable: boolean
+    } {
+    return {
+      overflowProbablyChange: new Subject<null>(),
+      resizeObserver: null,
+      subscriptions: [],
+      scrollable: false
+    }
+  },
+  computed: {
+    scrollClass (): string {
+      return this.scrollable ? 'scrollable' : ''
+    }
+  },
+  created () {
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        this.overflowProbablyChange.next(null)
+      }
+    })
+  },
+  mounted () {
+    this.updateScrollable()
+    this.resizeObserver?.observe(this.$refs.tabsWrapper as Element)
+    this.subscriptions.push(this.overflowProbablyChange.asObservable().subscribe(this.updateScrollable))
+  },
+  beforeDestroy () {
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe()
+    })
+    this.resizeObserver?.disconnect()
+  },
+  methods: {
+    updateScrollable () {
+      const tabsWrapper = this.$refs.tabsWrapper as Element
+      this.scrollable = tabsWrapper.clientWidth < tabsWrapper.scrollWidth
+    }
   }
-}
+})
 </script>
 
 <style lang="stylus" scoped>
@@ -59,5 +106,10 @@ export default {
 .tabs-wrapper
   &.pinned, &.scroll-up, &.scroll-down
     flex none
-
+.tabs-wrapper
+  &.scroll-up, &.scroll-down
+    display none
+.tabs-wrapper.scrollable
+  &.scroll-up, &.scroll-down
+    display flex
 </style>
