@@ -12,53 +12,58 @@ export type EditorMode =
   | 'RUBY'
   | 'TRANSLATE'
 
-export interface WelcomeTab {
-  type: 'welcome'
-}
-
-export interface DocumentTab {
-  type: 'document'
+export interface Tab {
   editorMode: EditorMode
   rubyId: number
   translateId: number
   document: Lyrics
 }
 
-export type Tab = DocumentTab | WelcomeTab
-
 export interface State {
   font: 'Serif' | 'Sans Serif'
   tabs: Tab[],
-  currentTabId: number
+  currentTabId: number,
+  newDocumentCount: number
 }
+
+export const START_MENU = -1
 
 Vue.use(Vuex)
 
 export default new Vuex.Store<State>({
   state: {
     font: 'Serif',
-    tabs: [{
-      type: 'welcome'
-    }],
-    currentTabId: 0
+    tabs: [],
+    currentTabId: START_MENU,
+    newDocumentCount: 0
   },
   mutations: {
+    NEW_DOCUMENT (state) {
+      state.newDocumentCount++
+    },
     OPEN_TAB (state, payload: { tab: Tab, id: number }) {
       state.tabs.splice(payload.id, 0, payload.tab)
-      state.currentTabId = state.tabs.length > 1 ? payload.id : 0
+      state.currentTabId = payload.id
     },
     CLOSE_TAB (state, id) {
-      if (id !== 0) state.currentTabId = id - 1
+      if (state.currentTabId >= id) {
+        state.currentTabId = state.currentTabId - 1 < 0 && state.tabs.length > 1
+          ? 0 : state.currentTabId - 1
+      }
       Vue.delete(state.tabs, id)
+    },
+    ACTIVATE_TAB (state, id) {
+      state.currentTabId = id
     }
   },
   actions: {
-    newLyrics ({ dispatch }) {
+    newLyrics ({ commit, dispatch, state }) {
+      commit('NEW_DOCUMENT')
       dispatch('openLyrics', {
         lang: navigator.language,
         locales: {},
         artist: '',
-        title: '',
+        title: `Document ${state.newDocumentCount}`,
         album: '',
         lyricist: '',
         composer: '',
@@ -69,7 +74,6 @@ export default new Vuex.Store<State>({
     },
     openLyrics ({ commit, state }, lyrics: Lyrics) {
       const tab: Tab = {
-        type: 'document',
         editorMode: 'HEAD',
         rubyId: 0,
         translateId: 0,
@@ -79,9 +83,6 @@ export default new Vuex.Store<State>({
         tab,
         id: state.currentTabId + 1
       })
-    },
-    closeLyrics ({ commit }, id: number) {
-      commit('CLOSE_TAB', id)
     }
   },
   modules: {

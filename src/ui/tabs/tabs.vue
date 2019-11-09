@@ -17,6 +17,11 @@
         <VueIcon icon="keyboard_arrow_right" />
       </Tab>
     </div>
+    <div :class="`tabs-wrapper new-tab ${newTabClass}`">
+      <Tab permanent @click="newTab">
+        <VueIcon icon="add" />
+      </Tab>
+    </div>
   </div>
 </template>
 
@@ -28,6 +33,9 @@ import { map, switchMap, takeUntil } from 'rxjs/operators'
 import Tab from './tab.vue'
 
 export default Vue.extend({
+  props: {
+    newTabButton: Boolean
+  },
   components: {
     Tab
   },
@@ -45,6 +53,9 @@ export default Vue.extend({
   computed: {
     scrollClass (): string {
       return this.scrollable ? 'scrollable' : ''
+    },
+    newTabClass (): string {
+      return this.newTabButton ? 'new-tab-able' : ''
     }
   },
   mounted () {
@@ -83,6 +94,9 @@ export default Vue.extend({
     updateScrollable () {
       const tabsWrapper = this.$refs.tabsWrapper as HTMLElement
       this.scrollable = tabsWrapper.clientWidth < tabsWrapper.scrollWidth
+    },
+    newTab () {
+      this.$emit('new-tab')
     }
   }
 })
@@ -102,7 +116,7 @@ export default Vue.extend({
   margin 0 1px
   .tab:first-child
     margin-left 0
-  .tab:last-child
+  .tab:nth-last-child(2)
     margin-right 0
 .tabs-wrapper
   display flex
@@ -117,12 +131,15 @@ export default Vue.extend({
 .tabs-wrapper .narrow
   padding 20px 10px
 .tabs-wrapper
-  &.pinned, &.scroll-up, &.scroll-down
+  &.pinned, &.scroll-up, &.scroll-down, &.new-tab
     flex none
 .tabs-wrapper
-  &.scroll-up, &.scroll-down
+  &.scroll-up, &.scroll-down, &.new-tab
     display none
 .tabs-wrapper.scrollable
   &.scroll-up, &.scroll-down
+    display flex
+.tabs-wrapper.new-tab-able
+  &.new-tab
     display flex
 </style>

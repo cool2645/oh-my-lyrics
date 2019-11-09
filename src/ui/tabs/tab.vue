@@ -1,10 +1,10 @@
 <template>
-  <div :class="rootClassName" @click="onClicked">
+  <div :class="rootClassName" @mousedown="onClicked">
     <span>
       <slot />
     </span>
     <div v-if="!permanent" class="close-button">
-      <VueIcon icon="clear" @click="close"/>
+      <VueIcon icon="clear" @mousedown="closeBtnClicked" @click="close"/>
     </div>
   </div>
 </template>
@@ -58,9 +58,11 @@ export default Vue.extend({
         }
       }, 0)
     },
+    closeBtnClicked (e: MouseEvent) {
+      e.stopPropagation()
+    },
     close (e: MouseEvent) {
       this.$emit('close', e)
-      e.stopPropagation()
     },
     onClicked (e: MouseEvent) {
       this.$emit('click', e)
@@ -93,6 +95,7 @@ export default Vue.extend({
     .vue-ui-icon
       height 1em
       width 1em
+      vertical-align middle
       svg
         width 100%
         height 100%
@@ -124,6 +127,8 @@ export default Vue.extend({
 .tab.active, .tab.primary.active
   background-color #fff
   color lookup('$vue-ui-primary-500')
+  &:hover
+    background-color #fff
 
 .tab.primary
   background-color lookup('$vue-ui-primary-600')

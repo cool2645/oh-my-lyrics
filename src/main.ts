@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueUi from '@vue/ui'
+import '@vue/ui/dist/vue-ui.css'
 import VueResize from 'vue-resize'
 import 'vue-resize/dist/vue-resize.css'
 
