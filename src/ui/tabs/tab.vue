@@ -113,7 +113,7 @@ export default Vue.extend({
         const el = this.$el as HTMLElement
         let translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
         if (this.tabsWrapper) {
-          if (offset) this.tabsWrapper.scrollBy(offset, 0)
+          if (offset) this.tabsWrapper.scrollLeft += offset
           translationX += this.tabsWrapper.scrollLeft - this.mouseDownScrollOffset
         }
         this.translationX = translationX
@@ -150,12 +150,12 @@ export default Vue.extend({
           && tabsWrapper.clientWidth < tabsWrapper.scrollWidth
         ) {
           if (tabsWrapper.scrollLeft > el.offsetLeft - tabsWrapper.offsetLeft) {
-            tabsWrapper.scrollTo(el.offsetLeft - tabsWrapper.offsetLeft, 0)
+            tabsWrapper.scrollLeft = el.offsetLeft - tabsWrapper.offsetLeft
             return
           }
           if (tabsWrapper.scrollLeft + tabsWrapper.clientWidth
             < el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth) {
-            tabsWrapper.scrollTo(el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth - tabsWrapper.clientWidth, 0)
+            tabsWrapper.scrollLeft = el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth - tabsWrapper.clientWidth
           }
         }
       }, 0)

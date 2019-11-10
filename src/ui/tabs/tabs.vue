@@ -82,7 +82,7 @@ export default Vue.extend({
             map((offset) => opposite ? -offset : offset)
           ))
         ).subscribe(offset => {
-          (this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
+          (this.$refs.tabsWrapper as HTMLElement).scrollLeft += offset
         })
       )
     }
@@ -110,7 +110,7 @@ export default Vue.extend({
           return 30 * (e.deltaY > 0 ? 1 : -1)
         })
       ).subscribe(offset => {
-        (this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
+        (this.$refs.tabsWrapper as HTMLElement).scrollLeft += offset
       })
     )
   },
