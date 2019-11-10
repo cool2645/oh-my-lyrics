@@ -1,16 +1,18 @@
 <template>
   <li>
-    <div class="title">
+    <div class="title" @click="toggleCollapse">
       <slot name="title" />
       <div class="expand-icon">
-        <VueIcon icon="keyboard_arrow_up"/>
+        <VueIcon :icon="mCollapse ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"/>
       </div>
     </div>
-    <div class="submenu">
-      <ul>
-        <slot />
-      </ul>
-    </div>
+    <transition name="collapse" tag="div">
+      <div class="submenu" v-if="!mCollapse">
+        <ul>
+          <slot />
+        </ul>
+      </div>
+    </transition>
   </li>
 </template>
 
@@ -18,6 +20,32 @@
 import Vue from 'vue'
 
 export default Vue.extend({
+  props: {
+    collapse: Boolean
+  },
+  watch: {
+    collapse (newValue) {
+      this.mCollapse = newValue
+    }
+  },
+  data () {
+    return {
+      mCollapse: this.collapse
+    }
+  },
+  computed: {
+    submenuClass () {
+      const classNames = ['submenu']
+      if (this.mCollapse) classNames.push('collapse')
+      return classNames.join(' ')
+    }
+  },
+  methods: {
+    toggleCollapse () {
+      this.mCollapse = !this.mCollapse
+      this.$emit('update:collapse', this.mCollapse)
+    }
+  }
 })
 </script>
 
@@ -65,7 +93,9 @@ ul
 li
   margin 2px 0
   padding 0 24px
-.submenu li
-  margin 2px -24px
-  padding 12px 48px
+.collapse-enter-active, .collapse-leave-active
+  transition transform .3s ease-in-out
+  transform-origin top
+.collapse-enter, .collapse-leave-to
+  transform scaleY(0)
 </style>

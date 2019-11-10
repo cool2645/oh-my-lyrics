@@ -12,10 +12,20 @@ export type EditorMode =
   | 'RUBY'
   | 'TRANSLATE'
 
+export type StartMenu =
+  | 'WELCOME'
+  | 'NEW'
+  | 'IMPORT'
+  | 'EXPORT'
+  | 'PREFERENCES'
+  | 'ABOUT'
+
 export interface Tab {
   _id: string
   editorMode: EditorMode
+  rubies: string[]
   rubyId: number
+  translations: string[]
   translateId: number
   document: Lyrics
 }
@@ -24,7 +34,8 @@ export interface State {
   font: 'Serif' | 'Sans Serif'
   tabs: Tab[],
   currentTabId: number,
-  newDocumentCount: number
+  newDocumentCount: number,
+  startMenu: StartMenu
 }
 
 export const START_MENU = -1
@@ -36,7 +47,8 @@ export default new Vuex.Store<State>({
     font: 'Serif',
     tabs: [],
     currentTabId: START_MENU,
-    newDocumentCount: 0
+    newDocumentCount: 0,
+    startMenu: 'WELCOME'
   },
   mutations: {
     NEW_DOCUMENT (state) {
@@ -70,6 +82,14 @@ export default new Vuex.Store<State>({
         Vue.set(state.tabs, state.currentTabId - 1, temp)
         state.currentTabId--
       }
+    },
+    UPDATE_EDITOR_MODE (state, { editorMode, id }) {
+      state.tabs[state.currentTabId].editorMode = editorMode
+      if (editorMode === 'RUBY') state.tabs[state.currentTabId].rubyId = id
+      if (editorMode === 'TRANSLATE') state.tabs[state.currentTabId].translateId = id
+    },
+    UPDATE_START_MENU (state, startMenu) {
+      state.startMenu = startMenu
     }
   },
   actions: {
@@ -92,8 +112,10 @@ export default new Vuex.Store<State>({
       const tab: Tab = {
         _id: (+new Date()) + '' + Math.random(),
         editorMode: 'HEAD',
-        rubyId: 0,
-        translateId: 0,
+        rubies: [],
+        rubyId: -1,
+        translations: [],
+        translateId: -1,
         document: lyrics
       }
       commit('OPEN_TAB', {

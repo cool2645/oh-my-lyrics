@@ -1,5 +1,5 @@
 <template>
-  <li :class="rootClassName">
+  <li :class="rootClassName" @click="onClick">
     <slot />
   </li>
 </template>
@@ -8,13 +8,18 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  computed: {
-    rootClassName () {
-      return this.selected ? 'selected' : ''
-    }
-  },
   props: {
     selected: Boolean
+  },
+  computed: {
+    rootClassName () {
+      return this.selected ? 'menu-item selected' : 'menu-item'
+    }
+  },
+  methods: {
+    onClick (e: MouseEvent) {
+      this.$emit('click', e)
+    }
   }
 })
 </script>
@@ -22,7 +27,7 @@ export default Vue.extend({
 <style lang="stylus" scoped>
 @import "~@vue/ui/src/style/imports"
 
-li
+li.menu-item
   margin 2px 0
   padding 12px 24px
   position relative
@@ -38,14 +43,17 @@ li
     svg
       width 100%
       height 100%
-li.selected
+li.menu-item.selected
   background-color lookup('$vue-ui-primary-500')
   color #fff
   svg
     fill #fff
-li:hover
+li.menu-item:hover
   background-color lookup('$vue-ui-primary-400')
   color #fff
   svg
     fill #fff
+.submenu li.menu-item
+  margin 2px -24px
+  padding 12px 48px
 </style>
