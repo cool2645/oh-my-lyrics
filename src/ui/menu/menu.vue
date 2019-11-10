@@ -1,6 +1,6 @@
 <template>
   <div class="menu">
-    <ul>
+    <ul class="menu-list">
       <slot />
     </ul>
   </div>
@@ -19,7 +19,7 @@ export default Vue.extend({
 .menu
   border-left 1px solid lookup('$vue-ui-gray-100')
   border-right 1px solid lookup('$vue-ui-gray-100')
-ul
+.menu-list
   margin 0
   padding 0
   list-style outside none none

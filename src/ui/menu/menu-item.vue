@@ -27,7 +27,7 @@ export default Vue.extend({
 <style lang="stylus" scoped>
 @import "~@vue/ui/src/style/imports"
 
-li.menu-item
+.menu-item
   margin 2px 0
   padding 12px 24px
   position relative
@@ -43,17 +43,17 @@ li.menu-item
     svg
       width 100%
       height 100%
-li.menu-item.selected
+.menu-item.selected
   background-color lookup('$vue-ui-primary-500')
   color #fff
   svg
     fill #fff
-li.menu-item:hover
+.menu-item:hover
   background-color lookup('$vue-ui-primary-400')
   color #fff
   svg
     fill #fff
-.submenu li.menu-item
+.submenu .menu-item
   margin 2px -24px
   padding 12px 48px
 </style>

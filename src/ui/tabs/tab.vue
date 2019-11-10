@@ -185,12 +185,14 @@ export default Vue.extend({
   margin-right 0
 
 .tab
+  height 60px
+  box-sizing border-box
   position relative
   margin 0 1px
   padding 20px 50px 20px 20px
   cursor default
   background-color lookup('$vue-ui-gray-300')
-  color #000
+  color lookup('$vue-ui-gray-900')
   white-space nowrap
   user-select none
   &.transition

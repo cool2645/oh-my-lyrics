@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <li class="menu-item-submenu">
     <div class="title" @click="toggleCollapse">
       <slot name="title" />
       <div class="expand-icon">
@@ -8,7 +8,7 @@
     </div>
     <transition name="collapse" tag="div">
       <div class="submenu" v-if="!mCollapse">
-        <ul>
+        <ul class="submenu-list">
           <slot />
         </ul>
       </div>
@@ -52,7 +52,7 @@ export default Vue.extend({
 <style lang="stylus" scoped>
 @import "~@vue/ui/src/style/imports"
 
-ul
+.submenu-list
   margin 0
   padding 0
   list-style outside none none
@@ -90,7 +90,7 @@ ul
         height 20px
 .title:hover
   background-color lookup('$vue-ui-gray-100')
-li
+.menu-item-submenu
   margin 2px 0
   padding 0 24px
 .collapse-enter-active, .collapse-leave-active
