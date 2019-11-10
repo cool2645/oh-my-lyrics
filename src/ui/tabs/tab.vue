@@ -13,8 +13,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { fromEvent, Subscription, timer } from 'rxjs'
-import { concatMap, mapTo, switchMap, takeUntil } from 'rxjs/operators'
+import { fromEvent, of, Subscription, timer } from 'rxjs'
+import { concatMap, filter, mapTo, switchMap, takeUntil } from 'rxjs/operators'
 
 export default Vue.extend({
   props: {
@@ -72,30 +72,48 @@ export default Vue.extend({
   },
   mounted () {
     if (this.active) this.scrollInNeed()
-    this.subscriptions.push(
-      fromEvent<MouseEvent>(this.$el, 'mousedown')
-        .subscribe((e: MouseEvent) => {
-          const el = this.$el as HTMLElement
-          this.mouseDownOffset = e.clientX - el.offsetLeft
-          if (this.tabsWrapper) {
-            this.mouseDownScrollOffset = this.tabsWrapper.scrollLeft
-          }
-          this.mouseDown = true
-        })
+    const mouseDown$ = fromEvent<MouseEvent>(this.$el, 'mousedown').pipe(
+      filter(() => this.sortable)
     )
     this.subscriptions.push(
-      fromEvent<MouseEvent>(this.$el, 'mousedown').pipe(
+      mouseDown$.subscribe((e: MouseEvent) => {
+        const el = this.$el as HTMLElement
+        this.mouseDownOffset = e.clientX - el.offsetLeft
+        if (this.tabsWrapper) {
+          this.mouseDownScrollOffset = this.tabsWrapper.scrollLeft
+        }
+        this.mouseDown = true
+      })
+    )
+    this.subscriptions.push(
+      mouseDown$.pipe(
         concatMap(() => fromEvent<MouseEvent>(document, 'mousemove').pipe(
           takeUntil(fromEvent<MouseEvent>(document, 'mouseup'))
         )),
-        switchMap((e) => timer(0, 12).pipe(
-          takeUntil(fromEvent<MouseEvent>(document, 'mouseup')),
-          mapTo(e)
-        ))
-      ).subscribe((e: MouseEvent) => {
+        switchMap((e) => {
+          if (this.tabsWrapper) {
+            const left = this.tabsWrapper.getBoundingClientRect().left
+            const right = this.tabsWrapper.getBoundingClientRect().right
+            if (e.clientX < left) {
+              return timer(0, 12).pipe(
+                takeUntil(fromEvent<MouseEvent>(document, 'mouseup')),
+                mapTo({ e, offset: -1 })
+              )
+            }
+            if (e.clientX > right) {
+              return timer(0, 12).pipe(
+                takeUntil(fromEvent<MouseEvent>(document, 'mouseup')),
+                mapTo({ e, offset: 1 })
+              )
+            }
+          }
+          return of({ e, offset: 0 })
+        })
+      ).subscribe(({ e, offset }) => {
         const el = this.$el as HTMLElement
         let translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
         if (this.tabsWrapper) {
+          if (offset) this.tabsWrapper.scrollBy(offset, 0)
           translationX += this.tabsWrapper.scrollLeft - this.mouseDownScrollOffset
         }
         this.translationX = translationX

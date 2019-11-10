@@ -29,8 +29,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { fromEvent, NEVER, Subject, Subscription, timer } from 'rxjs'
-import { concatMap, distinctUntilChanged, map, mapTo, switchMap, takeUntil } from 'rxjs/operators'
+import { fromEvent, Subject, Subscription, timer } from 'rxjs'
+import { concatMap, map, takeUntil } from 'rxjs/operators'
 
 import Tab from './tab.vue'
 
@@ -77,7 +77,7 @@ export default Vue.extend({
       this.subscriptions.push(
         fromEvent(element, 'mousedown').pipe(
           concatMap(() => timer(0, 200).pipe(
-            takeUntil(fromEvent(element, 'mouseup')),
+            takeUntil(fromEvent(document, 'mouseup')),
             map((cnt) => 20 + Math.pow(2, cnt)),
             map((offset) => opposite ? -offset : offset)
           ))
@@ -94,34 +94,6 @@ export default Vue.extend({
           this.mouseDown = true
           this.overflowDirtyDuringMouseDown = false
         })
-    )
-    this.subscriptions.push(
-      fromEvent<MouseEvent>(this.$refs.tabsWrapper as HTMLElement, 'mousedown').pipe(
-        concatMap(() => fromEvent<MouseEvent>(document, 'mousemove').pipe(
-          takeUntil(fromEvent<MouseEvent>(document, 'mouseup'))
-        )),
-        map((e) => {
-          if (this.scrollable) {
-            const left = (this.$refs.scrollLeft as HTMLElement).getBoundingClientRect().right
-            const right = (this.$refs.scrollRight as HTMLElement).getBoundingClientRect().left
-            if (e.clientX < left) return -1
-            if (e.clientX > right) return 1
-          }
-          return 0
-        }),
-        distinctUntilChanged(),
-        switchMap((e) => {
-          if (e !== 0) {
-            return timer(0, 12).pipe(
-              takeUntil(fromEvent<MouseEvent>(document, 'mouseup')),
-              mapTo(e)
-            )
-          }
-          return NEVER
-        })
-      ).subscribe((offset) => {
-        (this.$refs.tabsWrapper as HTMLElement).scrollBy(offset, 0)
-      })
     )
     this.subscriptions.push(
       fromEvent(document, 'mouseup')
