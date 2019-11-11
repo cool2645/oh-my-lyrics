@@ -7,9 +7,7 @@
         subtitle="歌曲语言用于帮助播放器确定是否显示翻译和注音"
       >
         <VueSelect v-model="lang" placeholder="选择语言">
-          <VueSelectButton value="zh-Hans" label="简体中文"/>
-          <VueSelectButton value="zh-Hant" label="正體中文"/>
-          <VueSelectButton value="zh-Hant-HK" label="中文（香港）"/>
+          <VueSelectButton value="zh" label="中文"/>
           <VueSelectButton value="ja" label="日本語"/>
           <VueSelectButton value="en" label="English"/>
         </VueSelect>

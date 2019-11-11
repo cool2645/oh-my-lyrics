@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getField, updateField } from 'vuex-map-fields'
+import VuexPersistence from 'vuex-persist'
 
 import { Lyrics } from '@/model'
 
@@ -43,7 +44,13 @@ export const START_MENU = -1
 
 Vue.use(Vuex)
 
+const vuexLocal = new VuexPersistence<State>({
+  strictMode: process.env.NODE_ENV !== 'production',
+  storage: window.localStorage
+})
+
 export default new Vuex.Store<State>({
+  strict: process.env.NODE_ENV !== 'production',
   state: {
     font: 'Serif',
     tabs: [],
@@ -109,7 +116,8 @@ export default new Vuex.Store<State>({
     },
     UPDATE_START_MENU (state: State, startMenu: StartMenu) {
       state.startMenu = startMenu
-    }
+    },
+    RESTORE_MUTATION: vuexLocal.RESTORE_MUTATION
   },
   actions: {
     newLyrics ({ commit, dispatch, state }) {
@@ -144,5 +152,8 @@ export default new Vuex.Store<State>({
     }
   },
   modules: {
-  }
+  },
+  plugins: [
+    vuexLocal.plugin
+  ]
 })
