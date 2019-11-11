@@ -53,7 +53,4 @@ export default Vue.extend({
   color #fff
   svg
     fill #fff
-.submenu .menu-item
-  margin 2px -24px
-  padding 12px 48px
 </style>

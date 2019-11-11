@@ -6,6 +6,7 @@
       <main class="main">
         <div class="content-page">
           <HeadPage v-if="selectedMenu === 'HEAD'" />
+          <LyricsPage v-if="selectedMenu === 'LYRICS'" />
         </div>
       </main>
     </div>
@@ -18,6 +19,7 @@ import Vue from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import SideBar from '@/components/SideBar.vue'
 import HeadPage from '@/components/HeadPage.vue'
+import LyricsPage from '@/components/LyricsPage.vue'
 import { EditorMode, START_MENU, StartMenu } from '@/store'
 
 export default Vue.extend({
@@ -25,7 +27,8 @@ export default Vue.extend({
   components: {
     NavBar,
     SideBar,
-    HeadPage
+    HeadPage,
+    LyricsPage
   },
   computed: {
     selectedMenu (): StartMenu | EditorMode {

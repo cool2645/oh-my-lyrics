@@ -183,9 +183,6 @@ export default Vue.extend({
 <style lang="stylus" scoped>
 @import "~@vue/ui/src/style/imports"
 
-.narrow .tab, .narrow .tab.permanent
-  padding 20px 10px
-
 .tab-holder:first-child .tab
   margin-left 0
 .tab-holder:last-child .tab

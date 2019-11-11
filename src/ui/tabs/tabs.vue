@@ -166,4 +166,8 @@ export default Vue.extend({
 
 .observable
   position relative
+
+.narrow
+  >>> .tab, .tab.permanent
+    padding 20px 10px
 </style>

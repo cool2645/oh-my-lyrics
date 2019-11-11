@@ -98,4 +98,7 @@ export default Vue.extend({
   transform-origin top
 .collapse-enter, .collapse-leave-to
   transform scaleY(0)
+.submenu >>> .menu-item
+  margin 2px -24px
+  padding 12px 48px
 </style>
