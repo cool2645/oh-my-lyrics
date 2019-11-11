@@ -5,10 +5,15 @@ declare module '*.vue' {
 
 declare module '@vue/ui' {
   const x: any
-  export = x
+  export default x
 }
 
 declare module 'vue-resize' {
   const x: any
-  export = x
+  export default x
+}
+
+declare module 'vuex-map-fields' {
+  const { getField, updateField, createHelpers }: any
+  export { getField, updateField, createHelpers }
 }

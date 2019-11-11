@@ -59,14 +59,14 @@ export default Vue.extend({
     },
     selectedMenu (): StartMenu | EditorMode {
       return this.isStartMenu ? this.$store.state.startMenu
-        : this.$store.state.tabs[this.$store.state.currentTabId].editorMode
+        : this.$store.getters.currentTab?.editorMode
     },
     selectedId (): number {
       if (this.selectedMenu === 'RUBY') {
-        return this.$store.state.tabs[this.$store.state.currentTabId].rubyId
+        return this.$store.getters.currentTab?.rubyId
       }
       if (this.selectedMenu === 'TRANSLATE') {
-        return this.$store.state.tabs[this.$store.state.currentTabId]?.translationId
+        return this.$store.getters.currentTab?.translationId
       }
       return -1
     },
@@ -145,14 +145,14 @@ export default Vue.extend({
         icon: 'sort_by_alpha',
         title: '注音',
         hasSubmenu: true,
-        submenu: this.$store.state.tabs[this.$store.state.currentTabId].rubies,
+        submenu: this.$store.getters.currentTab?.rubies,
         open: this.setEditorMode
       }, {
         name: 'TRANSLATE',
         icon: 'language',
         title: '翻译',
         hasSubmenu: true,
-        submenu: this.$store.state.tabs[this.$store.state.currentTabId].translations,
+        submenu: this.$store.getters.currentTab?.translations,
         open: this.setEditorMode
       }]
     }

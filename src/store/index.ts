@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { getField, updateField } from 'vuex-map-fields'
 
 import { Lyrics } from '@/model'
 
@@ -50,7 +51,25 @@ export default new Vuex.Store<State>({
     newDocumentCount: 0,
     startMenu: 'WELCOME'
   },
+  getters: {
+    currentTab (state) {
+      return state.tabs[state.currentTabId]
+    },
+    currentDocument (_, getters) {
+      return getters.currentTab?.document
+    },
+    getField,
+    getCurrentDocumentField (state, getters) {
+      return getters.currentDocument ? getField(getters.currentDocument) : undefined
+    }
+  },
   mutations: {
+    updateField,
+    updateCurrentDocumentField (state, field) {
+      if (state.tabs[state.currentTabId]) {
+        updateField(state.tabs[state.currentTabId].document, field)
+      }
+    },
     NEW_DOCUMENT (state) {
       state.newDocumentCount++
     },
@@ -68,7 +87,7 @@ export default new Vuex.Store<State>({
     ACTIVATE_TAB (state, id) {
       state.currentTabId = id
     },
-    REORDER_TAB (state, direction) {
+    REORDER_TAB (state, direction: number) {
       if (direction > 0 && state.currentTabId !== state.tabs.length - 1) {
         const temp = state.tabs[state.currentTabId]
         Vue.set(state.tabs, state.currentTabId, state.tabs[state.currentTabId + 1])
@@ -83,12 +102,12 @@ export default new Vuex.Store<State>({
         state.currentTabId--
       }
     },
-    UPDATE_EDITOR_MODE (state, { editorMode, id }) {
+    UPDATE_EDITOR_MODE (state, { editorMode, id }: { editorMode: EditorMode, id: number }) {
       state.tabs[state.currentTabId].editorMode = editorMode
       if (editorMode === 'RUBY') state.tabs[state.currentTabId].rubyId = id
       if (editorMode === 'TRANSLATE') state.tabs[state.currentTabId].translateId = id
     },
-    UPDATE_START_MENU (state, startMenu) {
+    UPDATE_START_MENU (state: State, startMenu: StartMenu) {
       state.startMenu = startMenu
     }
   },

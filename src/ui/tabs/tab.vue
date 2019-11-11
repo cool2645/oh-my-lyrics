@@ -15,6 +15,7 @@
 import Vue from 'vue'
 import { fromEvent, of, Subscription, timer } from 'rxjs'
 import { concatMap, filter, mapTo, switchMap, takeUntil } from 'rxjs/operators'
+import ResizeObserver from 'resize-observer-polyfill'
 
 export default Vue.extend({
   props: {
@@ -24,6 +25,7 @@ export default Vue.extend({
     sortable: Boolean
   },
   data (): {
+    resizeObserver: ResizeObserver | null,
     subscriptions: Subscription[],
     mouseDown: boolean,
     mouseDownOffset: number,
@@ -31,6 +33,7 @@ export default Vue.extend({
     translationX: number
     } {
     return {
+      resizeObserver: null,
       subscriptions: [],
       mouseDown: false,
       mouseDownOffset: 0,
@@ -67,11 +70,16 @@ export default Vue.extend({
   },
   watch: {
     active (newValue) {
-      if (newValue) this.scrollInNeed()
+      if (newValue) this.scrollToShow()
     }
   },
   mounted () {
-    if (this.active) this.scrollInNeed()
+    if (!this.tabsWrapper) return
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.active) this.scrollToShow()
+    })
+    this.resizeObserver.observe(this.tabsWrapper)
+    if (this.active) this.scrollToShow()
     const mouseDown$ = fromEvent<MouseEvent>(this.$el, 'mousedown').pipe(
       filter(() => this.sortable)
     )
@@ -131,7 +139,7 @@ export default Vue.extend({
     this.subscriptions.push(
       fromEvent<MouseEvent>(document, 'mouseup')
         .subscribe(() => {
-          if (this.mouseDown) this.scrollInNeed()
+          if (this.mouseDown) this.scrollToShow()
           this.mouseDown = false
           this.translationX = 0
           this.mouseDownOffset = 0
@@ -140,25 +148,24 @@ export default Vue.extend({
   },
   beforeDestroy () {
     this.subscriptions.forEach(subscription => subscription.unsubscribe())
+    this.resizeObserver?.disconnect()
   },
   methods: {
-    scrollInNeed () {
-      setTimeout(() => {
-        const el = this.$el as HTMLElement
-        const tabsWrapper = this.tabsWrapper
-        if (tabsWrapper && el
-          && tabsWrapper.clientWidth < tabsWrapper.scrollWidth
-        ) {
-          if (tabsWrapper.scrollLeft > el.offsetLeft - tabsWrapper.offsetLeft) {
-            tabsWrapper.scrollLeft = el.offsetLeft - tabsWrapper.offsetLeft
-            return
-          }
-          if (tabsWrapper.scrollLeft + tabsWrapper.clientWidth
-            < el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth) {
-            tabsWrapper.scrollLeft = el.offsetLeft - tabsWrapper.offsetLeft + el.clientWidth - tabsWrapper.clientWidth
-          }
+    scrollToShow () {
+      const el = this.$el as HTMLElement
+      const tabsWrapper = this.tabsWrapper
+      if (tabsWrapper && el
+        && tabsWrapper.clientWidth < tabsWrapper.scrollWidth
+      ) {
+        if (tabsWrapper.scrollLeft > el.offsetLeft) {
+          tabsWrapper.scrollLeft = el.offsetLeft
+          return
         }
-      }, 0)
+        if (tabsWrapper.scrollLeft + tabsWrapper.clientWidth
+          < el.offsetLeft + el.clientWidth) {
+          tabsWrapper.scrollLeft = el.offsetLeft + el.clientWidth - tabsWrapper.clientWidth
+        }
+      }
     },
     closeBtnClicked (e: MouseEvent) {
       e.stopPropagation()
@@ -205,7 +212,6 @@ export default Vue.extend({
     max-width 300px
     overflow hidden
     text-overflow ellipsis
-    height 1em
     .vue-ui-icon
       height 1em
       width 1em

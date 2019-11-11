@@ -9,10 +9,9 @@
       </Tab>
     </div>
     <div class="tabs-wrapper default" ref="tabsWrapper" document-tabs-wrapper>
-      <div>
+      <div class="observable" ref="resizeObservable">
         <slot />
       </div>
-      <resize-observer key="resize-observer" @notify="handleResize" />
     </div>
     <div :class="`tabs-wrapper scroll-down ${scrollClass}`" ref="scrollRight">
       <Tab permanent class="narrow">
@@ -30,7 +29,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import { fromEvent, Subject, Subscription, timer } from 'rxjs'
-import { concatMap, map, takeUntil } from 'rxjs/operators'
+import { concatMap, map, switchMapTo, takeUntil } from 'rxjs/operators'
+import ResizeObserver from 'resize-observer-polyfill'
 
 import Tab from './tab.vue'
 
@@ -42,20 +42,16 @@ export default Vue.extend({
     Tab
   },
   data (): {
-    overflowProbablyChange: Subject<null>,
-    mutationObserver: MutationObserver | null
+    resizeObserver: ResizeObserver | null,
+    scrollableMayChange$: Subject<void>,
     subscriptions: Subscription[],
-    scrollable: boolean,
-    mouseDown: boolean,
-    overflowDirtyDuringMouseDown: boolean
+    scrollable: boolean
     } {
     return {
-      overflowProbablyChange: new Subject<null>(),
-      mutationObserver: null,
+      resizeObserver: null,
+      scrollableMayChange$: new Subject<void>(),
       subscriptions: [],
-      scrollable: false,
-      mouseDown: false,
-      overflowDirtyDuringMouseDown: false
+      scrollable: false
     }
   },
   computed: {
@@ -68,11 +64,13 @@ export default Vue.extend({
   },
   mounted () {
     this.updateScrollable()
-    this.subscriptions.push(this.overflowProbablyChange.asObservable().subscribe(this.updateScrollable))
-    this.mutationObserver = new MutationObserver(() => {
-      this.overflowProbablyChange.next(null)
-    })
-    this.mutationObserver.observe(this.$refs.tabsWrapper as HTMLElement, { childList: true, subtree: true })
+    this.resizeObserver = new ResizeObserver(() => this.scrollableMayChange$.next())
+    this.subscriptions.push(
+      this.scrollableMayChange$.asObservable().pipe(
+        switchMapTo(timer(300))
+      ).subscribe(this.updateScrollable)
+    )
+    this.resizeObserver.observe(this.$refs.resizeObservable as HTMLElement)
     const clickToScroll = (element: HTMLElement, opposite: boolean) => {
       this.subscriptions.push(
         fromEvent(element, 'mousedown').pipe(
@@ -89,22 +87,6 @@ export default Vue.extend({
     clickToScroll(this.$refs.scrollLeft as HTMLElement, true)
     clickToScroll(this.$refs.scrollRight as HTMLElement, false)
     this.subscriptions.push(
-      fromEvent(this.$refs.tabsWrapper as HTMLElement, 'mousedown')
-        .subscribe(() => {
-          this.mouseDown = true
-          this.overflowDirtyDuringMouseDown = false
-        })
-    )
-    this.subscriptions.push(
-      fromEvent(document, 'mouseup')
-        .subscribe(() => {
-          this.mouseDown = false
-          if (this.overflowDirtyDuringMouseDown) {
-            setTimeout(() => this.overflowProbablyChange.next(null), 300) // after transition
-          }
-        })
-    )
-    this.subscriptions.push(
       fromEvent<WheelEvent>(this.$refs.tabsWrapper as HTMLElement, 'wheel').pipe(
         map((e: WheelEvent) => {
           return 30 * (e.deltaY > 0 ? 1 : -1)
@@ -116,16 +98,16 @@ export default Vue.extend({
   },
   beforeDestroy () {
     this.subscriptions.forEach(subscription => subscription.unsubscribe())
-    this.mutationObserver?.disconnect()
+    this.resizeObserver?.disconnect()
   },
   methods: {
-    handleResize () {
-      this.overflowProbablyChange.next(null)
-    },
     updateScrollable () {
       const tabsWrapper = this.$refs.tabsWrapper as HTMLElement
-      if (!this.mouseDown) this.scrollable = tabsWrapper.clientWidth < tabsWrapper.scrollWidth
-      else this.overflowDirtyDuringMouseDown = true
+      if (this.scrollable) {
+        this.scrollable = tabsWrapper.clientWidth < tabsWrapper.scrollWidth - 76
+      } else {
+        this.scrollable = tabsWrapper.clientWidth < tabsWrapper.scrollWidth
+      }
     },
     newTab () {
       this.$emit('new-tab')
@@ -181,4 +163,7 @@ export default Vue.extend({
 .tabs-wrapper.new-tab-able
   &.new-tab
     display flex
+
+.observable
+  position relative
 </style>
