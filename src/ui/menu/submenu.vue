@@ -33,13 +33,6 @@ export default Vue.extend({
       mCollapse: this.collapse
     }
   },
-  computed: {
-    submenuClass () {
-      const classNames = ['submenu']
-      if (this.mCollapse) classNames.push('collapse')
-      return classNames.join(' ')
-    }
-  },
   methods: {
     toggleCollapse () {
       this.mCollapse = !this.mCollapse
