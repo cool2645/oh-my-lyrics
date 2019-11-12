@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { fromEvent, of, Subscription, timer } from 'rxjs'
+import { fromEvent, of, timer } from 'rxjs'
 import { concatMap, filter, mapTo, switchMap, takeUntil } from 'rxjs/operators'
 import ResizeObserver from 'resize-observer-polyfill'
 
@@ -26,7 +26,6 @@ export default Vue.extend({
   },
   data (): {
     resizeObserver: ResizeObserver | null,
-    subscriptions: Subscription[],
     mouseDown: boolean,
     mouseDownOffset: number,
     mouseDownScrollOffset: number,
@@ -34,7 +33,6 @@ export default Vue.extend({
     } {
     return {
       resizeObserver: null,
-      subscriptions: [],
       mouseDown: false,
       mouseDownOffset: 0,
       mouseDownScrollOffset: 0,
@@ -83,17 +81,17 @@ export default Vue.extend({
     const mouseDown$ = fromEvent<MouseEvent>(this.$el, 'mousedown').pipe(
       filter(() => this.sortable)
     )
-    this.subscriptions.push(
-      mouseDown$.subscribe((e: MouseEvent) => {
+    this.$subscribeTo(
+      mouseDown$, (e: MouseEvent) => {
         const el = this.$el as HTMLElement
         this.mouseDownOffset = e.clientX - el.offsetLeft
         if (this.tabsWrapper) {
           this.mouseDownScrollOffset = this.tabsWrapper.scrollLeft
         }
         this.mouseDown = true
-      })
+      }
     )
-    this.subscriptions.push(
+    this.$subscribeTo(
       mouseDown$.pipe(
         concatMap(() => fromEvent<MouseEvent>(document, 'mousemove').pipe(
           takeUntil(fromEvent<MouseEvent>(document, 'mouseup'))
@@ -117,7 +115,7 @@ export default Vue.extend({
           }
           return of({ e, offset: 0 })
         })
-      ).subscribe(({ e, offset }) => {
+      ), ({ e, offset }) => {
         const el = this.$el as HTMLElement
         let translationX = e.clientX - el.offsetLeft - this.mouseDownOffset
         if (this.tabsWrapper) {
@@ -134,20 +132,19 @@ export default Vue.extend({
             else this.translationX -= sibling.clientWidth
           }
         }
-      })
+      }
     )
-    this.subscriptions.push(
-      fromEvent<MouseEvent>(document, 'mouseup')
-        .subscribe(() => {
-          if (this.mouseDown) this.scrollToShow()
-          this.mouseDown = false
-          this.translationX = 0
-          this.mouseDownOffset = 0
-        })
+    this.$subscribeTo(
+      fromEvent<MouseEvent>(document, 'mouseup'),
+      () => {
+        if (this.mouseDown) this.scrollToShow()
+        this.mouseDown = false
+        this.translationX = 0
+        this.mouseDownOffset = 0
+      }
     )
   },
   beforeDestroy () {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe())
     this.resizeObserver?.disconnect()
   },
   methods: {

@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import VueRx from 'vue-rx'
 import VueUi from '@vue/ui'
 import '@vue/ui/dist/vue-ui.css'
 import VueResize from 'vue-resize'
@@ -9,6 +10,8 @@ import './registerServiceWorker'
 import store from './store'
 
 Vue.config.productionTip = false
+
+Vue.use(VueRx)
 Vue.use(VueUi)
 Vue.use(VueResize)
 
