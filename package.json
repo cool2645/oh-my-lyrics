@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vue/ui": "^0.11.6",
+    "codemirror": "^5.49.2",
     "core-js": "^3.3.2",
     "register-service-worker": "^1.6.2",
     "resize-observer-polyfill": "^1.5.1",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.4.4",
     "@babel/plugin-proposal-optional-chaining": "~7.6.0",
+    "@types/codemirror": "^0.0.80",
     "@types/jest": "^24.0.11",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
