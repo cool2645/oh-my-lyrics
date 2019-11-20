@@ -3,8 +3,8 @@ export interface Extension {
 }
 
 export interface Phoneme {
-  timeShift: number
-  duration: number
+  timeShift?: number
+  duration?: number
   value: string
 }
 
@@ -24,8 +24,8 @@ export interface Translation {
 }
 
 export interface Sentence {
-  timeShift: number
-  duration: number
+  timeShift?: number
+  duration?: number
   words: (Word & Extension)[]
   translations: Translation[]
 }

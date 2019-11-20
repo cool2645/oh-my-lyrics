@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { getField, updateField } from 'vuex-map-fields'
 import VuexPersistence from 'vuex-persist'
 
-import { Lyrics } from '@/model'
+import { Extension, Lyrics, Phoneme, Ruby, Sentence, Word } from '@/model'
 
 export type EditorMode =
   | 'HEAD'
@@ -65,6 +65,12 @@ export default new Vuex.Store<State>({
     currentDocument (_, getters) {
       return getters.currentTab?.document
     },
+    currentDocumentText (_, getters) {
+      if (!getters.currentDocument) return ''
+      return getters.currentDocument.sentences.map((sentence: Sentence) => (
+        sentence.words.map(word => (word.phonemes.map(phoneme => phoneme.value).join(''))).join('')
+      )).join('\n')
+    },
     getField,
     getCurrentDocumentField (state, getters) {
       return getters.currentDocument ? getField(getters.currentDocument) : undefined
@@ -116,6 +122,89 @@ export default new Vuex.Store<State>({
     },
     UPDATE_START_MENU (state: State, startMenu: StartMenu) {
       state.startMenu = startMenu
+    },
+    // MUST COMPLY WITH 2 REQUIREMENTS
+    // 1. STATE AFTER ADDED AND THEN DELETED THE SAME TEXT MUST REMAIN THE SAME
+    // 2. STATE AFTER ADDED SOME TEXT CHARACTER-BY-CHARACTER MUST REMAIN THE SAME
+    //    AS ADDED THE SAME TEXT BY PASTE IN ONE MOVE
+    LYRICS_MUTATION (state: State, change: {
+      from: { line: number, ch: number },
+      to: { line: number, ch: number },
+      text: string[]
+    }) {
+      const document = state.tabs[state.currentTabId].document
+      if (document.sentences.length === 0) {
+        document.sentences.push({
+          words: [],
+          translations: []
+        } as any)
+      }
+      // remove and figure out where to add
+      const line = document.sentences[change.from.line]
+      let wordStart = 0
+      let phonemeStart = 0
+      let charStart = 0
+      let startedRemove = false
+      for (let i = change.from.line; i <= change.to.line; i++) {
+        const fromCh = i === change.from.line ? change.from.ch : 0
+        const toCh = i === change.to.line ? change.to.ch : Infinity
+        let it = 0
+        for (let j = wordStart; j < line.words.length; j++) {
+          const word = line.words[j]
+          for (let k = 0; k < word.phonemes.length; k++) {
+            const phoneme = word.phonemes[k]
+            // skip not to remove ones
+            if (it + phoneme.value.length < fromCh) {
+              it += phoneme.value.length
+              if (!startedRemove) phonemeStart++
+              continue
+            }
+            const s1 = it < fromCh ? phoneme.value.substr(0, fromCh - it) : ''
+            const s2 = it >= toCh ? phoneme.value
+              : it + phoneme.value.length > toCh ? phoneme.value.substr(toCh) : ''
+            // remove entire phoneme
+            if (s1 + s2 === '') {
+              it += phoneme.value.length
+              word.phonemes.splice(k, 1)
+              word.rubies.splice(k, 1)
+              k--
+              if (!startedRemove) startedRemove = true
+              continue
+            }
+            if (s1 + s2 !== phoneme.value) {
+              if (!startedRemove) {
+                charStart = s1.length
+                startedRemove = true
+              }
+              Vue.set(phoneme, 'value', s1 + s2)
+            }
+          }
+          // remove empty word
+          if (word.phonemes.length === 0) {
+            line.words.splice(j, 1)
+            j--
+            continue
+          }
+          if (!startedRemove || phonemeStart >= word.phonemes.length) {
+            wordStart++
+            phonemeStart = 0
+          }
+        }
+        if (i !== change.to.line) {
+          line.words.push(...document.sentences[change.from.line + 1].words)
+          document.sentences.splice(change.from.line + 1, 1)
+        }
+      }
+      // add
+      for (let i = 0; i < change.text.length; i++) {
+      }
+      if (phonemeStart === 0 && charStart === 0) {
+        // insert to wordStart
+      } else if (charStart === 0) {
+        // split word
+      } else {
+        // split word and phoneme
+      }
     },
     RESTORE_MUTATION: vuexLocal.RESTORE_MUTATION
   },

@@ -10,6 +10,7 @@
 import Vue from 'vue'
 import CodeMirror, { Editor } from 'codemirror'
 import 'codemirror/lib/codemirror.css'
+import { mapMutations } from 'vuex'
 
 export default Vue.extend({
   data (): {
@@ -21,14 +22,30 @@ export default Vue.extend({
   },
   mounted () {
     this.codeMirror = CodeMirror(this.$refs.editor as HTMLDivElement, {
-      value: '',
+      value: this.$store.getters.currentDocumentText,
       mode: null
     })
     this.codeMirror.on('change', (_, change) => {
-      console.log(change)
+      console.table({
+        selection: [
+          `${change.from.line}:${change.from.ch}`,
+          `${change.to.line}:${change.to.ch}`
+        ],
+        removed: change.removed,
+        text: change.text
+      })
+      ;(this as any).updateLyrics(change)
+      if (this.codeMirror?.getDoc().getValue() !== this.$store.getters.currentDocumentText) {
+        const err = new Error(this.$store.getters.currentDocumentText)
+        err.name = 'LyricsUpdateError'
+        console.error(err)
+      }
     })
   },
   methods: {
+    ...mapMutations({
+      updateLyrics: 'LYRICS_MUTATION'
+    })
   }
 })
 </script>
