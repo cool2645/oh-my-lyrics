@@ -39,6 +39,7 @@ export default Vue.extend({
         const err = new Error(this.$store.getters.currentDocumentText)
         err.name = 'LyricsUpdateError'
         console.error(err)
+        window.alert('编辑器发生错误，为确保数据一致性，请刷新页面')
       }
     })
   },
