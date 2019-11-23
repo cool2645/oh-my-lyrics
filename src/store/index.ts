@@ -122,6 +122,7 @@ export const mutations = {
     let phonemeStart = 0
     let charStart = 0
     let startedRemove = false
+    let startedRemove2 = false
     for (let i = change.from.line; i <= change.to.line; i++) {
       const fromCh = i === change.from.line ? change.from.ch : 0
       const toCh = i === change.to.line ? change.to.ch : Infinity
@@ -140,7 +141,9 @@ export const mutations = {
           const s2 = it >= toCh ? phoneme.value
             : it + phoneme.value.length > toCh ? phoneme.value.substr(toCh - it) : ''
           if (!startedRemove) {
-            charStart = s1.length
+            if (s2.length === 0 && s1.length !== 0) {
+              phonemeStart++
+            } else charStart = s1.length
             startedRemove = true
           }
           it += phoneme.value.length
@@ -149,7 +152,6 @@ export const mutations = {
             word.phonemes.splice(k, 1)
             word.rubies.splice(k, 1)
             k--
-            if (!startedRemove) startedRemove = true
             continue
           }
           if (s1 + s2 !== phoneme.value) {
@@ -162,9 +164,10 @@ export const mutations = {
           j--
           continue
         }
-        if (!startedRemove || phonemeStart >= word.phonemes.length) {
+        if (!startedRemove2 && phonemeStart >= word.phonemes.length) {
           wordStart++
           phonemeStart = 0
+          if (startedRemove) startedRemove2 = true
         }
       }
       if (i !== change.to.line) {
@@ -173,12 +176,12 @@ export const mutations = {
       }
     }
     // add
-    if (phonemeStart !== 0) {
+    if (phonemeStart !== 0 || charStart !== 0) {
       if (charStart !== 0) {
         line.words[wordStart].phonemes.splice(phonemeStart, 1, ...[
           { value: line.words[wordStart].phonemes[phonemeStart].value.substr(0, charStart) },
           { value: line.words[wordStart].phonemes[phonemeStart].value.substr(charStart) }
-        ])
+        ].filter(p => p.value))
         phonemeStart++
       }
       line.words.splice(wordStart, 1, ...[
@@ -190,7 +193,7 @@ export const mutations = {
           phonemes: line.words[wordStart].phonemes.slice(phonemeStart),
           rubies: line.words[wordStart].rubies.slice(phonemeStart)
         } as Word & Extension
-      ])
+      ].filter(w => w.phonemes.length !== 0))
       wordStart++
     }
     for (let i = 0; i < change.text.length; i++) {

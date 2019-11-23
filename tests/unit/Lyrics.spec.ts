@@ -441,6 +441,111 @@ const STATE6 = JSON.stringify({
   'startMenu': 'WELCOME'
 })
 
+const STATE7 = JSON.stringify({
+  'font': 'Serif',
+  'tabs': [{
+    '_id': '15744965228470.16697444522669425',
+    'editorMode': 'LYRICS',
+    'rubies': [],
+    'rubyId': -1,
+    'translations': [],
+    'translateId': -1,
+    'document': {
+      'lang': 'zh',
+      'locales': {},
+      'artist': 'TYPE-MOON',
+      'title': '春日归来',
+      'album': '',
+      'lyricist': '',
+      'composer': '',
+      'arranger': '',
+      'by': 'test',
+      'sentences': [{
+        'words': [{
+          'phonemes': [{ 'value': '严' }, { 'value': '冬' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '已' }, { 'value': '经' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '离' }, { 'value': '去' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '，' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '春' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '痕' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '迹' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '已' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '然' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '淡' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '薄' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '远' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '离' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{ 'phonemes': [{ 'value': '将' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '得' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '失' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '沉' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '淀' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '于' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '心' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '底' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '，' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '为' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '了' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '人' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '生' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '的' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '不' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '止' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '前' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '行' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '了' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '四' }, { 'value': '周' }],
+          'rubies': []
+        }],
+        'translations': []
+      }, {
+        'words': [{
+          'phonemes': [{ 'value': '艰' }, { 'value': '难' }, { 'value': '酷' }, { 'value': '寒' }, { 'value': '的' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '传' }, { 'value': '奇' }, { 'value': '岁' }, { 'value': '月' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '正' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '等' }, { 'value': '待' }, { 'value': '着' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '我' }, { 'value': '们' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '一' }, { 'value': '同' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '前' }, { 'value': '行' }], 'rubies': [] }],
+        'translations': []
+      }]
+    }
+  }],
+  'currentTabId': 0,
+  'newDocumentCount': 1,
+  'startMenu': 'WELCOME'
+})
+
 const STATE3 = JSON.stringify({
   'font': 'Serif',
   'tabs': [{
@@ -802,7 +907,7 @@ const STATE3_2 = JSON.stringify({
         'words': [{
           'phonemes': [{ 'value': '艰' }, { 'value': '难' }, { 'value': '酷' }, { 'value': '寒' }, { 'value': '的' }],
           'rubies': []
-        },
+        }, { 'phonemes': [{ 'value': '传奇' }], 'rubies': [] },
         { 'phonemes': [{ 'value': '痕' }], 'rubies': [] }, {
           'phonemes': [{ 'value': '迹' }],
           'rubies': []
@@ -881,7 +986,161 @@ const STATE3_2 = JSON.stringify({
         }, { 'phonemes': [{ 'value': '同' }], 'rubies': [] }, {
           'phonemes': [{ 'value': '伴' }],
           'rubies': []
-        }, { 'phonemes': [{ 'value': '传奇' }], 'rubies': [] }, {
+        }, {
+          'phonemes': [{ 'value': '正' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '等' }, { 'value': '待' }, { 'value': '着' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '我' }, { 'value': '们' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '一' }, { 'value': '同' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '前' }, { 'value': '行' }], 'rubies': [] }],
+        'translations': []
+      }]
+    }
+  }],
+  'currentTabId': 0,
+  'newDocumentCount': 1,
+  'startMenu': 'WELCOME'
+})
+
+const STATE3_3 = JSON.stringify({
+  'font': 'Serif',
+  'tabs': [{
+    '_id': '15744965228470.16697444522669425',
+    'editorMode': 'LYRICS',
+    'rubies': [],
+    'rubyId': -1,
+    'translations': [],
+    'translateId': -1,
+    'document': {
+      'lang': 'zh',
+      'locales': {},
+      'artist': 'TYPE-MOON',
+      'title': '春日归来',
+      'album': '',
+      'lyricist': '',
+      'composer': '',
+      'arranger': '',
+      'by': 'test',
+      'sentences': [{
+        'words': [{
+          'phonemes': [{ 'value': '严' }, { 'value': '冬' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '已' }, { 'value': '经' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '离' }, { 'value': '去' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '，' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '春' }, { 'value': '天' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '已' }, { 'value': '然' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '来' }, { 'value': '临' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{
+          'phonemes': [{ 'value': '芬' }, { 'value': '芳' }, { 'value': '的' }],
+          'rubies': []
+        }, {
+          'phonemes': [{ 'value': '鲜' }, { 'value': '花' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '开' }, { 'value': '满' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '了' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '四' }, { 'value': '周' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{
+          'phonemes': [{ 'value': '艰' }, { 'value': '难' }, { 'value': '酷' }, { 'value': '寒' }, { 'value': '的' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '传' }], 'rubies': [] },
+        { 'phonemes': [{ 'value': '痕' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '迹' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '已' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '然' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '淡' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '薄' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '远' }], 'rubies': [] }, { 'phonemes': [{ 'value': '离' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{ 'phonemes': [{ 'value': '将' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '得' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '失' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '沉' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '淀' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '于' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '心' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '底' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '，' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '为' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '了' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '人' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '生' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '的' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '不' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '止' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '前' }], 'rubies': [] }, { 'phonemes': [{ 'value': '行' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{ 'phonemes': [{ 'value': '如' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '今' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '…' }], 'rubies': [] }, { 'phonemes': [{ 'value': '…' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{ 'phonemes': [{ 'value': '发' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '生' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '这' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '城' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '镇' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '上' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '的' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '传' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '奇' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '已' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '尘' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '埃' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '落' }], 'rubies': [] }, { 'phonemes': [{ 'value': '定' }], 'rubies': [] }],
+        'translations': []
+      }, {
+        'words': [{ 'phonemes': [{ 'value': '崭' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '新' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '的' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '旅' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '途' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '与' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '同' }], 'rubies': [] }, {
+          'phonemes': [{ 'value': '伴' }],
+          'rubies': []
+        }, { 'phonemes': [{ 'value': '月' }], 'rubies': [] }, {
           'phonemes': [{ 'value': '正' }],
           'rubies': []
         }, {
@@ -1268,6 +1527,15 @@ describe('LYRICS_MUTATION', () => {
     })
     expect(state).toStrictEqual(JSON.parse(STATE6))
   })
+  it('should replace multiline', () => {
+    const state = JSON.parse(ORIGINAL_STATE)
+    LYRICS_MUTATION(state, {
+      from: { line: 0, ch: 8 },
+      to: { line: 1, ch: 7 },
+      text: ['痕迹已然淡薄远离', '将得失沉淀于心底，为了人生的不止前行']
+    })
+    expect(state).toStrictEqual(JSON.parse(STATE7))
+  })
   it('should break word', () => {
     const state = JSON.parse(ORIGINAL_STATE)
     LYRICS_MUTATION(state, {
@@ -1283,7 +1551,7 @@ describe('LYRICS_MUTATION', () => {
     })
     expect(state).toStrictEqual(JSON.parse(STATE3))
   })
-  it('should break phoneme', () => {
+  it('should break phoneme 1', () => {
     const state = JSON.parse(ORIGINAL_STATE2)
     LYRICS_MUTATION(state, {
       from: { line: 2, ch: 5 },
@@ -1312,5 +1580,20 @@ describe('LYRICS_MUTATION', () => {
       ]
     })
     expect(state).toStrictEqual(JSON.parse(STATE3_2))
+  })
+  it('should break phoneme 3', () => {
+    const state = JSON.parse(ORIGINAL_STATE2)
+    LYRICS_MUTATION(state, {
+      from: { line: 2, ch: 6 },
+      to: { line: 2, ch: 8 },
+      text: [
+        '痕迹已然淡薄远离',
+        '将得失沉淀于心底，为了人生的不止前行',
+        '如今……',
+        '发生这城镇上的传奇已尘埃落定',
+        '崭新的旅途与同伴'
+      ]
+    })
+    expect(state).toStrictEqual(JSON.parse(STATE3_3))
   })
 })
