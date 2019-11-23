@@ -8,6 +8,10 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cool2645/LyricsXML.git"
+  },
   "dependencies": {
     "@vue/ui": "^0.11.6",
     "codemirror": "^5.49.2",

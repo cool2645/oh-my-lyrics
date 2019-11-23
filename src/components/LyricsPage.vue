@@ -20,12 +20,23 @@ export default Vue.extend({
       codeMirror: null
     }
   },
+  computed: {
+    currentTabId () {
+      return this.$store.state.currentTabId
+    }
+  },
+  watch: {
+    currentTabId () {
+      this.codeMirror?.setValue(this.$store.getters.currentDocumentText)
+    }
+  },
   mounted () {
     this.codeMirror = CodeMirror(this.$refs.editor as HTMLDivElement, {
       value: this.$store.getters.currentDocumentText,
       mode: null
     })
     this.codeMirror.on('change', (_, change) => {
+      if (change.origin === 'setValue') return
       console.table({
         selection: [
           `${change.from.line}:${change.from.ch}`,

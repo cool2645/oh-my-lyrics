@@ -1,4 +1,7 @@
-# lyrics-xml
+# LyricsXML
+
+[![GitHub Workflow](https://github.com/cool2645/LyricsXML/workflows/Continuous%20Integration/badge.svg)](https://github.com/cool2645/LyricsXML/actions?query=workflow%3A%22Continuous+Integration%22)
+[![codecov](https://codecov.io/gh/cool2645/LyricsXML/branch/master/graph/badge.svg)](https://codecov.io/gh/cool2645/LyricsXML)
 
 ## Project setup
 ```
