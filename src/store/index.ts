@@ -5,6 +5,10 @@ import VuexPersistence from 'vuex-persist'
 
 import { Extension, Lyrics, Phoneme, Ruby, Sentence, Word } from '@/model'
 
+const cloneDeep = (obj: any) => {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 export type EditorMode =
   | 'HEAD'
   | 'LYRICS'
@@ -140,7 +144,7 @@ export default new Vuex.Store<State>({
         } as any)
       }
       // remove and figure out where to add
-      const line = document.sentences[change.from.line]
+      let line = document.sentences[change.from.line]
       let wordStart = 0
       let phonemeStart = 0
       let charStart = 0
@@ -154,7 +158,7 @@ export default new Vuex.Store<State>({
           for (let k = 0; k < word.phonemes.length; k++) {
             const phoneme = word.phonemes[k]
             // skip not to remove ones
-            if (it + phoneme.value.length < fromCh) {
+            if (it + phoneme.value.length <= fromCh) {
               it += phoneme.value.length
               if (!startedRemove) phonemeStart++
               continue
@@ -162,6 +166,10 @@ export default new Vuex.Store<State>({
             const s1 = it < fromCh ? phoneme.value.substr(0, fromCh - it) : ''
             const s2 = it >= toCh ? phoneme.value
               : it + phoneme.value.length > toCh ? phoneme.value.substr(toCh) : ''
+            if (!startedRemove) {
+              charStart = s1.length
+              startedRemove = true
+            }
             // remove entire phoneme
             if (s1 + s2 === '') {
               it += phoneme.value.length
@@ -172,10 +180,6 @@ export default new Vuex.Store<State>({
               continue
             }
             if (s1 + s2 !== phoneme.value) {
-              if (!startedRemove) {
-                charStart = s1.length
-                startedRemove = true
-              }
               Vue.set(phoneme, 'value', s1 + s2)
             }
           }
@@ -196,14 +200,44 @@ export default new Vuex.Store<State>({
         }
       }
       // add
-      for (let i = 0; i < change.text.length; i++) {
+      if (phonemeStart !== 0) {
+        if (charStart !== 0) {
+          line.words[wordStart].phonemes.splice(phonemeStart, 1, ...[
+            { value: line.words[wordStart].phonemes[phonemeStart].value.substr(0, charStart) },
+            { value: line.words[wordStart].phonemes[phonemeStart].value.substr(charStart) }
+          ])
+          phonemeStart++
+        }
+        line.words.splice(wordStart, 1, ...[
+          {
+            phonemes: line.words[wordStart].phonemes.slice(0, phonemeStart),
+            rubies: line.words[wordStart].rubies.slice(0, phonemeStart)
+          } as Word & Extension,
+          {
+            phonemes: line.words[wordStart].phonemes.slice(phonemeStart),
+            rubies: line.words[wordStart].rubies.slice(phonemeStart)
+          } as Word & Extension
+        ])
+        wordStart++
       }
-      if (phonemeStart === 0 && charStart === 0) {
-        // insert to wordStart
-      } else if (charStart === 0) {
-        // split word
-      } else {
-        // split word and phoneme
+      for (let i = 0; i < change.text.length; i++) {
+        if (i !== 0) {
+          const nextLineWords = line.words.splice(wordStart)
+          document.sentences.splice(change.from.line + i, 0, {
+            words: nextLineWords,
+            translations: cloneDeep(line.translations)
+          } as Sentence & Extension)
+          wordStart = 0
+        }
+        line = document.sentences[change.from.line + i]
+        const words = change.text[i].split('')
+        line.words.splice(wordStart, 0, ...words.map(char => ({
+          phonemes: [{
+            value: char
+          }],
+          rubies: []
+        } as any)))
+        wordStart += words.length
       }
     },
     RESTORE_MUTATION: vuexLocal.RESTORE_MUTATION
