@@ -2,6 +2,9 @@
   "name": "lyrics-xml",
   "version": "0.1.0",
   "private": true,
+  "resolutions": {
+    "form-data": "2.5.5"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
